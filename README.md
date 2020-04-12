@@ -1,2 +1,2 @@
 # Cryptography
-Encodeing and decoding verious kinds of cipher
+Encodeing and decoding various kinds of cipher.
