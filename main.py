@@ -1,81 +1,99 @@
-'''
-This program is used to decipher the ciphertext of linear code 
-with value of a and k. Input the ciphertext, a and k, than the 
-program will print the plaintext.
-'''
+"""
+This program is used to encode and decode various kinds of cipher.
+This program runs in terminal. The python3 interpreter is needed.
 
-# This version is from Pycharm
+Version: 4/11/2020 from Pycharm
+"""
 
 import os
 
 
 class ReadAndWrite:
+    """
+    This class is used to read texts from input file and write texts
+    to output files. If the output file is not empty, the new output
+    will overwrite the file.
+    """
 
     def __init__(self):
         self.localPath = os.getcwd()
 
-    def FileRead(self):
+    @staticmethod
+    def FileRead():
         fp = open("input_text.txt", "r")
         readList = fp.read()
         fp.close()
-        return(readList)
+        return readList
 
-    def FileWrite(self, writeList):
+    @staticmethod
+    def FileWrite(writeList):
         fp = open("output_text.txt", "w")
         fp.write(writeList)
         fp.close()
-        return()
+        return ()
 
 
 class UniversalInput:
+    """
+    This class is used to process input data. Different cipher need
+    different kinds of input.
+    """
 
-    def __init__(self, textType = None):
+    def __init__(self, textType=None):
         self.textType = textType
 
-    def checkModeInput(self, actualInput, validInput):
+    @staticmethod
+    def checkModeInput(actualInput, validInput):
+        """
+        This function is used to check if user input invalid data.
+        """
         if actualInput not in validInput:
             print("The input is not valid, please try again.\n")
-            return(False)
+            return False
         else:
-            return(True)
+            return True
 
     def GeneralizedCaesarCodesInput(self, mode3):
-        while(True):
+        text = None
+        while True:
             try:
                 k = int(input("Please input the value of k: \n"))
                 break
-            except ValueError: 
+            except ValueError:
                 print("Invalid input, k must be an integer.")
         if mode3 == "1":
-            text = input("Please input the " + self.textType +" :\n")
-        elif mode3 == "2" :
+            text = input("Please input the " + self.textType + " :\n")
+        elif mode3 == "2":
             text = ReadAndWrite().FileRead()
         inputList = [k, text]
-        return(inputList)
+        return inputList
 
     def linearCodesInput(self, mode3):
-        while(True):
-            try:           
+        text = None
+        while True:
+            try:
                 a = int(input("Please input the value of a: \n"))
                 break
             except ValueError:
                 print("Invalid input, a must be an integer.")
-        while(True):
+        while True:
             try:
                 k = int(input("Please input the value of k: \n"))
                 break
             except ValueError:
                 print("Invalid input, k must be an integer.")
         if mode3 == "1":
-            text = input("Please input the " + self.textType +" :\n")
+            text = input("Please input the " + self.textType + " :\n")
         elif mode3 == "2":
             text = ReadAndWrite().FileRead()
         inputList = [a, k, text]
-        return(inputList)
-
+        return inputList
 
 
 class GeneralizedCaesarCodes:
+    """
+    This class is used to encode and decode generalized caesar codes
+    """
 
     def __init__(self, k, ciphertext, plaintext):
         self.ciphertextInput = ciphertext
@@ -99,10 +117,9 @@ class GeneralizedCaesarCodes:
             else:
                 self.ciphertext.append(i)
         for j in self.ciphertext:
-            print(j, end = "")
+            print(j, end="")
         print("\n")
-        return(self.ciphertext)
-
+        return self.ciphertext
 
     def decode(self):
         for i in self.ciphertextInput:
@@ -124,12 +141,15 @@ class GeneralizedCaesarCodes:
                 self.plaintext.append(i)
 
         for j in self.plaintext:
-            print(j, end = "")
+            print(j, end="")
         print("\n")
-        return(self.plaintext)
+        return self.plaintext
 
 
 class LinearCodes:
+    """
+    This class is used to encode and decode linear codes
+    """
 
     def __init__(self, a, k, ciphertext, plaintext):
         self.ciphertextInput = ciphertext
@@ -144,21 +164,20 @@ class LinearCodes:
             if i == " ":
                 self.ciphertext.append(i)
             elif i.isupper():
-                i1 = (self.a*(ord(i) - 65) + self.k) % 26
+                i1 = (self.a * (ord(i) - 65) + self.k) % 26
                 i2 = chr(i1 + 65)
                 self.ciphertext.append(i2)
             elif i.islower():
-                i1 = (self.a*(ord(i) - 97) + self.k) % 26
-                i2 = chr(i1+97)
+                i1 = (self.a * (ord(i) - 97) + self.k) % 26
+                i2 = chr(i1 + 97)
                 self.ciphertext.append(i2)
             else:
                 self.ciphertext.append(i)
 
         for j in self.ciphertext:
-            print(j, end = "")
+            print(j, end="")
         print("\n")
-        return(self.ciphertext)
-
+        return self.ciphertext
 
     def decode(self):
         for i in self.ciphertextInput:
@@ -168,44 +187,51 @@ class LinearCodes:
                 i1 = ord(i) - 65 - self.k
                 while i1 % self.a != 0 or i1 < 0:
                     i1 += 26
-                i2 = chr(int(i1/self.a) + 65)
+                i2 = chr(int(i1 / self.a) + 65)
                 self.plaintext.append(i2)
             elif i.islower():
                 i1 = ord(i) - 97 - self.k
                 while i1 % self.a != 0 or i1 < 0:
                     i1 += 26
-                i2 = chr(int(i1/self.a) + 97)
+                i2 = chr(int(i1 / self.a) + 97)
                 self.plaintext.append(i2)
             else:
                 self.plaintext.append(i)
 
         for j in self.plaintext:
-            print(j, end = "")
+            print(j, end="")
         print("\n")
-        return(self.plaintext)
+        return self.plaintext
+
 
 def mode():
-    while(True):
+    """
+    This function is used to process different modes. Mode1 represent which
+    kinds of code users want to choose. Mode2 represent the choice between
+    encode and decode. Mode3 represent manually input data or read from input
+    file.
+    """
+    while True:
         mode1 = input("Please input number to choose the type of cipher.\n\
             1. Generalized Caesar Codes\n\
             2. LinearCodes\n")
-        if UniversalInput().checkModeInput(mode1, ["1","2"]):
+        if UniversalInput().checkModeInput(mode1, ["1", "2"]):
             break
         else:
             continue
-    while(True):
+    while True:
         mode2 = input("Please input number to choose encode or decode.\n\
             1. Encode\n\
             2. Decode\n")
-        if UniversalInput().checkModeInput(mode2, ["1","2"]):
+        if UniversalInput().checkModeInput(mode2, ["1", "2"]):
             break
         else:
             continue
-    while(True):
+    while True:
         mode3 = input("Please input number to choose input method.\n\
             1. Manual input\n\
             2. Read file \"input_text.txt\" at local path\n")
-        if UniversalInput().checkModeInput(mode3, ["1","2"]):
+        if UniversalInput().checkModeInput(mode3, ["1", "2"]):
             break
         else:
             continue
@@ -226,20 +252,18 @@ def mode():
             inputlist = UniversalInput("plaintext").linearCodesInput(mode3)
             LC = LinearCodes(inputlist[0], inputlist[1], 0, inputlist[2])
             ReadAndWrite().FileWrite(''.join(LC.encode()))
-            
+
         elif mode2 == "2":
             inputlist = UniversalInput("ciphertext").linearCodesInput(mode3)
             LC = LinearCodes(inputlist[0], inputlist[1], inputlist[2], 0)
             ReadAndWrite().FileWrite(''.join(LC.decode()))
-    
 
 
 def main():
-    while(True):
+    while True:
         mode()
-    #ReadAndWrite().FileRead("plaintext")
+    # ReadAndWrite().FileRead("plaintext")
+
 
 if __name__ == '__main__':
     main()
-
-
