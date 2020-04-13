@@ -2,7 +2,7 @@
 This program is used to encode and decode various kinds of cipher.
 This program runs in terminal. The python3 interpreter is needed.
 
-Version: 4/12/2020 from Pycharm
+Version: 22:58 4/12/2020 from Pycharm
 """
 
 import os
@@ -40,7 +40,7 @@ class UniversalInput:
     """
 
     def __init__(self, text_type=None):
-        self.textType = text_type
+        self.text_type = text_type
 
     @staticmethod
     def check_mode_input(actual_input, valid_input):
@@ -53,23 +53,27 @@ class UniversalInput:
         else:
             return True
 
-    def generalized_caesar_codes_input(self, mode3):
+    def check_mode3(self, mode3):
         text = None
+        if mode3 == "1":
+            # print(self.text_type)
+            text = input("Please input the " + self.text_type + " :\n")
+        elif mode3 == "2":
+            text = ReadAndWrite().file_read()
+        return text
+
+    def generalized_caesar_codes_input(self, mode3):
         while True:
             try:
                 k = int(input("Please input the value of k: \n"))
                 break
             except ValueError:
                 print("Invalid input, k must be an integer.")
-        if mode3 == "1":
-            text = input("Please input the " + self.textType + " :\n")
-        elif mode3 == "2":
-            text = ReadAndWrite().file_read()
+        text = self.check_mode3(mode3)
         input_list = [k, text]
         return input_list
 
     def linear_codes_input(self, mode3):
-        text = None
         while True:
             try:
                 a = int(input("Please input the value of a: \n"))
@@ -82,28 +86,37 @@ class UniversalInput:
                 break
             except ValueError:
                 print("Invalid input, k must be an integer.")
-        if mode3 == "1":
-            text = input("Please input the " + self.textType + " :\n")
-        elif mode3 == "2":
-            text = ReadAndWrite().file_read()
+        text = self.check_mode3(mode3)
         input_list = [a, k, text]
+        return input_list
+
+    def vigenere_cipher_input(self, mode3):
+        while True:
+            key_phrase = input("Please input the key phrase: \n")
+            if key_phrase.islower():
+                break
+            else:
+                print("key phrase must be lowercase letter")
+                continue
+        text = self.check_mode3(mode3)
+        input_list = [key_phrase, text]
         return input_list
 
 
 class GeneralizedCaesarCodes:
     """
-    This class is used to encode and decode generalized caesar codes
+    This class is used to encode and decode Generalized Caesar Codes
     """
 
     def __init__(self, k, ciphertext, plaintext):
         self.ciphertext_input = ciphertext
-        self.plaintextInput = plaintext
+        self.plaintext_input = plaintext
         self.k = k
         self.plaintext = []
         self.ciphertext = []
 
     def encode(self):
-        for i in self.plaintextInput:
+        for i in self.plaintext_input:
             if i == " ":
                 self.ciphertext.append(i)
             elif i.isupper():
@@ -127,13 +140,13 @@ class GeneralizedCaesarCodes:
                 self.plaintext.append(i)
             elif i.isupper():
                 i1 = ord(i) - 65 - self.k
-                if i1 < 0:
+                while i1 < 0:
                     i1 += 26
                 i2 = chr(i1 + 65)
                 self.plaintext.append(i2)
             elif i.islower():
                 i1 = ord(i) - 97 - self.k
-                if i1 < 0:
+                while i1 < 0:
                     i1 += 26
                 i2 = chr(i1 + 97)
                 self.plaintext.append(i2)
@@ -148,19 +161,19 @@ class GeneralizedCaesarCodes:
 
 class LinearCodes:
     """
-    This class is used to encode and decode linear codes
+    This class is used to encode and decode Linear Codes
     """
 
     def __init__(self, a, k, ciphertext, plaintext):
         self.ciphertext_input = ciphertext
-        self.plaintextInput = plaintext
+        self.plaintext_input = plaintext
         self.a = a
         self.k = k
         self.plaintext = []
         self.ciphertext = []
 
     def encode(self):
-        for i in self.plaintextInput:
+        for i in self.plaintext_input:
             if i == " ":
                 self.ciphertext.append(i)
             elif i.isupper():
@@ -204,6 +217,83 @@ class LinearCodes:
         return self.plaintext
 
 
+class VigenereCipher:
+    """
+    This class is used to encode and decode Vigenere Cipher
+    """
+
+    def __init__(self, key_phrase, ciphertext, plaintext):
+        self.key_phrase = key_phrase
+        self.ciphertext_input = ciphertext
+        self.plaintext_input = plaintext
+        self.plaintext = []
+        self.ciphertext = []
+
+    def encode(self):
+        key_index = 0
+        for i in self.plaintext_input:
+            if i == " ":
+                self.ciphertext.append(i)
+            elif i.isupper():
+                i1 = ord(i) - 65
+                j = self.key_phrase[key_index]
+                j1 = ord(j) - 97
+                cipher = chr((j1 + i1) % 26 + 65)
+                self.ciphertext.append(cipher)
+            elif i.islower():
+                i1 = ord(i) - 97
+                j = self.key_phrase[key_index]
+                j1 = ord(j) - 97
+                cipher = chr((j1 + i1) % 26 + 97)
+                self.ciphertext.append(cipher)
+            else:
+                self.ciphertext.append(i)
+            key_index += 1
+            if key_index == len(self.key_phrase):
+                key_index = 0
+
+        for k in self.ciphertext:
+            print(k, end="")
+        print("\n")
+        return self.ciphertext
+
+    def decode(self):
+        key_index = 0
+        for i in self.ciphertext_input:
+            if i == " ":
+                self.plaintext.append(i)
+            elif i.isupper():
+                i1 = ord(i) - 65
+                j = self.key_phrase[key_index]
+                j1 = ord(j) - 97
+                if i1 - j1 < 0:
+                    i1 = i1 - j1 + 26
+                else:
+                    i1 = i1 - j1
+                i1 = chr(i1 + 65)
+                self.plaintext.append(i1)
+            elif i.islower():
+                i1 = ord(i) - 97
+                j = self.key_phrase[key_index]
+                j1 = ord(j) - 97
+                if i1 - j1 < 0:
+                    i1 = i1 - j1 + 26
+                else:
+                    i1 = i1 - j1
+                i1 = chr(i1 + 97)
+                self.plaintext.append(i1)
+            else:
+                self.plaintext.append(i)
+            key_index += 1
+            if key_index == len(self.key_phrase):
+                key_index = 0
+
+        for k in self.plaintext:
+            print(k, end="")
+        print("\n")
+        return self.plaintext
+
+
 def mode():
     """
     This function is used to process different modes. Mode1 represent which
@@ -214,8 +304,9 @@ def mode():
     while True:
         mode1 = input("Please input number to choose the type of cipher.\n\
             1. Generalized Caesar Codes\n\
-            2. LinearCodes\n")
-        if UniversalInput().check_mode_input(mode1, ["1", "2"]):
+            2. LinearCodes\n\
+            3. Vigenere cipher\n")
+        if UniversalInput().check_mode_input(mode1, ["1", "2", "3"]):
             break
         else:
             continue
@@ -258,11 +349,22 @@ def mode():
             lc = LinearCodes(input_list[0], input_list[1], input_list[2], 0)
             ReadAndWrite().file_write(''.join(lc.decode()))
 
+    elif mode1 == "3":
+        if mode2 == "1":
+            input_list = UniversalInput("plain text").vigenere_cipher_input(mode3)
+            vc = VigenereCipher(input_list[0], 0, input_list[1])
+            ReadAndWrite().file_write(''.join(vc.encode()))
+            return
+        elif mode2 == "2":
+            input_list = UniversalInput("cipher text").vigenere_cipher_input(mode3)
+            vc = VigenereCipher(input_list[0], input_list[1], 1)
+            ReadAndWrite().file_write(''.join(vc.decode()))
+            return
+
 
 def main():
     while True:
         mode()
-    # ReadAndWrite().FileRead("plaintext")
 
 
 if __name__ == '__main__':
