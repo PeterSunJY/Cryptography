@@ -102,6 +102,31 @@ class UniversalInput:
         input_list = [key_phrase, text]
         return input_list
 
+    def hill_cipher_input(self, mode3):
+        while True:
+            input_list = ["a", "b", "c", "d"]
+            for i in range(len(input_list)):
+                while True:
+                    try:
+                        input_list[i] = int(input("Please input the value of " + input_list[i] + " :\n"))
+                        break
+                    except ValueError:
+                        print("Invalid input, " + input_list[i] + " must be an integer")
+            f = 1
+            p = (input_list[0] * input_list[3] - input_list[1] * input_list[2]) % 26
+            while (p * f) % 26 != 1:
+                f += 1
+                if f == 10000:
+                    break
+            if f == 10000:
+                print("The value of a, b, c, d are not valid.\nad-bc must have an inverse number in mod 26\n")
+                continue
+            else:
+                break
+        text = self.check_mode3(mode3)
+        input_list.append(text)
+        return input_list
+
 
 class GeneralizedCaesarCodes:
     """
@@ -294,6 +319,229 @@ class VigenereCipher:
         return self.plaintext
 
 
+class HillCipher:
+    """
+    This class is used to encode and decode Hill Cipher
+    """
+
+    def __init__(self, a, b, c, d, ciphertext, plaintext):
+        self.a = a % 26
+        self.b = b % 26
+        self.c = c % 26
+        self.d = d % 26
+        self.ciphertext_input = ciphertext
+        self.plaintext_input = plaintext
+        self.plaintext = []
+        self.ciphertext = []
+
+    def add_x(self):
+        num = 0
+        for i in self.plaintext_input:
+            if (65 <= ord(i) <= 90) or (97 <= ord(i) <= 122):
+                num += 1
+        if num % 2 != 0:
+            self.plaintext_input = self.plaintext_input + "x"
+            return
+        else:
+            return
+
+    def encode(self):
+        self.add_x()
+        print("The length of input is " + str(len(self.plaintext_input)))
+        i = 0
+        j = 0
+        while i < len(self.plaintext_input):
+            print("the value of i is " + str(i))
+            other = []
+            if i == len(self.plaintext_input) - 1:
+                self.ciphertext.append(self.plaintext_input[i])
+                break
+            for j in range(i + 1, len(self.plaintext_input)):
+                print("j is " + str(j))
+                if self.plaintext_input[i].isupper():
+                    i1 = ord(self.plaintext_input[i]) - 65
+
+                    if self.plaintext_input[j].isupper():
+                        j1 = ord(self.plaintext_input[j]) - 65
+                        ex = (self.a * i1 + self.b * j1) % 26
+                        ex1 = chr(ex + 65)
+                        self.ciphertext.append(ex1)
+                        for k in other:
+                            self.ciphertext.append(k)
+                        ey = (self.c * i1 + self.d * j1) % 26
+                        ey1 = chr(ey + 65)
+                        self.ciphertext.append(ey1)
+                        break
+                    elif self.plaintext_input[j].islower():
+                        j1 = ord(self.plaintext_input[j]) - 97
+                        ex = (self.a * i1 + self.b * j1) % 26
+                        ex1 = chr(ex + 65)
+                        self.ciphertext.append(ex1)
+                        for k in other:
+                            self.ciphertext.append(k)
+                        ey = (self.c * i1 + self.d * j1) % 26
+                        ey1 = chr(ey + 97)
+                        self.ciphertext.append(ey1)
+                        break
+                    else:
+                        other.append(self.plaintext_input[j])
+                        continue
+
+                elif self.plaintext_input[i].islower():
+                    i1 = ord(self.plaintext_input[i]) - 97
+
+                    if self.plaintext_input[j].isupper():
+                        j1 = ord(self.plaintext_input[j]) - 65
+                        ex = (self.a * i1 + self.b * j1) % 26
+                        ex1 = chr(ex + 97)
+                        self.ciphertext.append(ex1)
+                        for k in other:
+                            self.ciphertext.append(k)
+                        ey = (self.c * i1 + self.d * j1) % 26
+                        ey1 = chr(ey + 65)
+                        self.ciphertext.append(ey1)
+                        break
+                    elif self.plaintext_input[j].islower():
+                        print("hello")
+                        j1 = ord(self.plaintext_input[j]) - 97
+                        ex = (self.a * i1 + self.b * j1) % 26
+                        ex1 = chr(ex + 97)
+                        self.ciphertext.append(ex1)
+                        for k in other:
+                            self.ciphertext.append(k)
+                        ey = (self.c * i1 + self.d * j1) % 26
+                        ey1 = chr(ey + 97)
+                        self.ciphertext.append(ey1)
+                        break
+                    else:
+                        other.append(self.plaintext_input[j])
+                        print("Something is added in other")
+                        continue
+
+                else:
+                    self.ciphertext.append(self.plaintext_input[i])
+                    j -= 1
+                    break
+            i = j + 1
+
+        for k in self.ciphertext:
+            print(k, end="")
+        print("\n")
+        return self.ciphertext
+
+    def decode(self):
+        print("The length of input is " + str(len(self.ciphertext_input)))
+        i = 0
+        j = 0
+        f = 1
+        p = (self.a * self.d - self.b * self.c) % 26
+        while (p * f) % 26 != 1:
+            f += 1
+
+        while i < len(self.ciphertext_input):
+            print("The value of i is " + str(i))
+            other = []
+            if i == len(self.ciphertext_input) - 1:
+                self.plaintext.append(self.ciphertext_input[i])
+                break
+            for j in range(i + 1, len(self.ciphertext_input)):
+                print("j is " + str(j))
+                if self.ciphertext_input[i].isupper():
+                    i1 = ord(self.ciphertext_input[i]) - 65
+
+                    if self.ciphertext_input[j].isupper():
+                        j1 = ord(self.ciphertext_input[j]) - 65
+                        dx = (f * self.d * i1) - (f * self.b * j1)
+                        while dx < 0:
+                            dx += 26
+                        dx = dx % 26
+                        dx1 = chr(dx + 65)
+                        self.plaintext.append(dx1)
+                        for k in other:
+                            self.plaintext.append(k)
+                        dy = (-1 * f * self.c * i1) + (f * self.a * j1)
+                        while dy < 0:
+                            dy += 26
+                        dy = dy % 26
+                        dy1 = chr(dy + 65)
+                        self.plaintext.append(dy1)
+                        break
+
+                    elif self.ciphertext_input[j].islower():
+                        j1 = ord(self.ciphertext_input[j]) - 97
+                        dx = (f * self.d * i1) - (f * self.b * j1)
+                        while dx < 0:
+                            dx += 26
+                        dx = dx % 26
+                        dx1 = chr(dx + 65)
+                        self.plaintext.append(dx1)
+                        for k in other:
+                            self.plaintext.append(k)
+                        dy = (-1 * f * self.c * i1) + (f * self.a * j1)
+                        while dy < 0:
+                            dy += 26
+                        dy = dy % 26
+                        dy1 = chr(dy + 97)
+                        self.plaintext.append(dy1)
+                        break
+                    else:
+                        other.append(self.ciphertext_input[j])
+                        continue
+
+                elif self.ciphertext_input[i].islower():
+                    i1 = ord(self.ciphertext_input[i]) - 97
+
+                    if self.ciphertext_input[j].isupper():
+                        j1 = ord(self.ciphertext_input[j]) - 65
+                        dx = (f * self.d * i1) - (f * self.b * j1)
+                        while dx < 0:
+                            dx += 26
+                        dx = dx % 26
+                        dx1 = chr(dx + 97)
+                        self.plaintext.append(dx1)
+                        for k in other:
+                            self.plaintext.append(k)
+                        dy = (-1 * f * self.c * i1) + (f * self.a * j1)
+                        while dy < 0:
+                            dy += 26
+                        dy = dy % 26
+                        dy1 = chr(dy + 65)
+                        self.plaintext.append(dy1)
+                        break
+
+                    elif self.ciphertext_input[j].islower():
+                        j1 = ord(self.ciphertext_input[j]) - 97
+                        dx = (f * self.d * i1) - (f * self.b * j1)
+                        while dx < 0:
+                            dx += 26
+                        dx = dx % 26
+                        dx1 = chr(dx + 97)
+                        self.plaintext.append(dx1)
+                        for k in other:
+                            self.plaintext.append(k)
+                        dy = (-1 * f * self.c * i1) + (f * self.a * j1)
+                        while dy < 0:
+                            dy += 26
+                        dy = dy % 26
+                        dy1 = chr(dy + 97)
+                        self.plaintext.append(dy1)
+                        break
+                    else:
+                        other.append(self.ciphertext_input[j])
+                        continue
+
+                else:
+                    self.plaintext.append(self.ciphertext_input[i])
+                    j -= 1
+                    break
+            i = j + 1
+
+        for k in self.plaintext:
+            print(k, end="")
+        print("\n")
+        return self.plaintext
+
+
 def mode():
     """
     This function is used to process different modes. Mode1 represent which
@@ -305,8 +553,9 @@ def mode():
         mode1 = input("Please input number to choose the type of cipher.\n\
             1. Generalized Caesar Codes\n\
             2. LinearCodes\n\
-            3. Vigenere cipher\n")
-        if UniversalInput().check_mode_input(mode1, ["1", "2", "3"]):
+            3. Vigenere Cipher\n\
+            4. Hill Cipher\n")
+        if UniversalInput().check_mode_input(mode1, ["1", "2", "3", "4"]):
             break
         else:
             continue
@@ -332,22 +581,26 @@ def mode():
             input_list = UniversalInput("plain text").generalized_caesar_codes_input(mode3)
             gcc = GeneralizedCaesarCodes(input_list[0], 0, input_list[1])
             ReadAndWrite().file_write(''.join(gcc.encode()))
+            return
 
         elif mode2 == "2":
             input_list = UniversalInput("cipher text").generalized_caesar_codes_input(mode3)
             gcc = GeneralizedCaesarCodes(input_list[0], input_list[1], 0)
             ReadAndWrite().file_write(''.join(gcc.decode()))
+            return
 
     elif mode1 == "2":
         if mode2 == "1":
             input_list = UniversalInput("plain text").linear_codes_input(mode3)
             lc = LinearCodes(input_list[0], input_list[1], 0, input_list[2])
             ReadAndWrite().file_write(''.join(lc.encode()))
+            return
 
         elif mode2 == "2":
             input_list = UniversalInput("cipher text").linear_codes_input(mode3)
             lc = LinearCodes(input_list[0], input_list[1], input_list[2], 0)
             ReadAndWrite().file_write(''.join(lc.decode()))
+            return
 
     elif mode1 == "3":
         if mode2 == "1":
@@ -361,6 +614,18 @@ def mode():
             ReadAndWrite().file_write(''.join(vc.decode()))
             return
 
+    elif mode1 == "4":
+        if mode2 == "1":
+            input_list = UniversalInput("plain text").hill_cipher_input(mode3)
+            hc = HillCipher(input_list[0], input_list[1], input_list[2], input_list[3], 0, input_list[4])
+            ReadAndWrite().file_write(''.join(hc.encode()))
+            return
+        elif mode2 == "2":
+            input_list = UniversalInput("cipher text").hill_cipher_input(mode3)
+            hc = HillCipher(input_list[0], input_list[1], input_list[2], input_list[3], input_list[4], 0)
+            ReadAndWrite().file_write(''.join(hc.decode()))
+            return
+
 
 def main():
     while True:
@@ -369,3 +634,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
