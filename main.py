@@ -2,7 +2,7 @@
 This program is used to encode and decode various kinds of cipher.
 This program runs in terminal. The python3 interpreter is needed.
 
-Version: 22:58 4/12/2020 from Pycharm
+Version: 16:18 4/16/2020 from Pycharm
 """
 
 import os
@@ -125,6 +125,19 @@ class UniversalInput:
                 break
         text = self.check_mode3(mode3)
         input_list.append(text)
+        return input_list
+
+    def autokey_cipher_input(self, mode3):
+        while True:
+            seed = input("Please input the seed: \n")
+            if seed.islower():
+                seed = ord(seed) - 97
+                break
+            else:
+                print("Invalid seed, the seed must be a lower case letter.\n")
+                continue
+        text = self.check_mode3(mode3)
+        input_list = [seed, text]
         return input_list
 
 
@@ -347,17 +360,14 @@ class HillCipher:
 
     def encode(self):
         self.add_x()
-        print("The length of input is " + str(len(self.plaintext_input)))
         i = 0
         j = 0
         while i < len(self.plaintext_input):
-            print("the value of i is " + str(i))
             other = []
             if i == len(self.plaintext_input) - 1:
                 self.ciphertext.append(self.plaintext_input[i])
                 break
             for j in range(i + 1, len(self.plaintext_input)):
-                print("j is " + str(j))
                 if self.plaintext_input[i].isupper():
                     i1 = ord(self.plaintext_input[i]) - 65
 
@@ -402,7 +412,6 @@ class HillCipher:
                         self.ciphertext.append(ey1)
                         break
                     elif self.plaintext_input[j].islower():
-                        print("hello")
                         j1 = ord(self.plaintext_input[j]) - 97
                         ex = (self.a * i1 + self.b * j1) % 26
                         ex1 = chr(ex + 97)
@@ -415,7 +424,6 @@ class HillCipher:
                         break
                     else:
                         other.append(self.plaintext_input[j])
-                        print("Something is added in other")
                         continue
 
                 else:
@@ -430,7 +438,6 @@ class HillCipher:
         return self.ciphertext
 
     def decode(self):
-        print("The length of input is " + str(len(self.ciphertext_input)))
         i = 0
         j = 0
         f = 1
@@ -439,13 +446,11 @@ class HillCipher:
             f += 1
 
         while i < len(self.ciphertext_input):
-            print("The value of i is " + str(i))
             other = []
             if i == len(self.ciphertext_input) - 1:
                 self.plaintext.append(self.ciphertext_input[i])
                 break
             for j in range(i + 1, len(self.ciphertext_input)):
-                print("j is " + str(j))
                 if self.ciphertext_input[i].isupper():
                     i1 = ord(self.ciphertext_input[i]) - 65
 
@@ -542,6 +547,59 @@ class HillCipher:
         return self.plaintext
 
 
+class AutokeyCipher:
+    def __init__(self, seed, ciphertext, plaintext):
+        self.seed = seed
+        self.ciphertext_input = ciphertext
+        self.plaintext_input = plaintext
+        self.plaintext = []
+        self.ciphertext = []
+
+    def encode(self):
+        for i in self.plaintext_input:
+            if i.isupper():
+                i1 = ord(i) - 65
+                j = (i1 + self.seed) % 26
+                self.seed = i1
+                j = chr(j + 65)
+                self.ciphertext.append(j)
+            elif i.islower():
+                i1 = ord(i) - 97
+                j = (i1 + self.seed) % 26
+                self.seed = i1
+                j = chr(j + 97)
+                self.ciphertext.append(j)
+            else:
+                self.ciphertext.append(i)
+
+        for k in self.ciphertext:
+            print(k, end="")
+        print("\n")
+        return self.ciphertext
+
+    def decode(self):
+        for i in self.ciphertext_input:
+            if i.isupper():
+                i1 = ord(i) - 65
+                j = (i1 - self.seed) % 26
+                self.seed = j
+                j = chr(j + 65)
+                self.plaintext.append(j)
+            elif i.islower():
+                i1 = ord(i) - 97
+                j = (i1 - self.seed) % 26
+                self.seed = j
+                j = chr(j + 97)
+                self.plaintext.append(j)
+            else:
+                self.plaintext.append(i)
+
+        for k in self.plaintext:
+            print(k, end="")
+        print("\n")
+        return self.plaintext
+
+
 def mode():
     """
     This function is used to process different modes. Mode1 represent which
@@ -554,8 +612,9 @@ def mode():
             1. Generalized Caesar Codes\n\
             2. LinearCodes\n\
             3. Vigenere Cipher\n\
-            4. Hill Cipher\n")
-        if UniversalInput().check_mode_input(mode1, ["1", "2", "3", "4"]):
+            4. Hill Cipher\n\
+            5. Autokey Cipher\n")
+        if UniversalInput().check_mode_input(mode1, ["1", "2", "3", "4", "5"]):
             break
         else:
             continue
@@ -626,6 +685,18 @@ def mode():
             ReadAndWrite().file_write(''.join(hc.decode()))
             return
 
+    elif mode1 == "5":
+        if mode2 == "1":
+            input_list = UniversalInput("plain text").autokey_cipher_input(mode3)
+            ac = AutokeyCipher(input_list[0], 0, input_list[1])
+            ReadAndWrite().file_write(''.join(ac.encode()))
+            return
+        elif mode2 == "2":
+            input_list = UniversalInput("cipher text").autokey_cipher_input(mode3)
+            ac = AutokeyCipher(input_list[0], input_list[1], 0)
+            ReadAndWrite().file_write(''.join(ac.decode()))
+            return
+
 
 def main():
     while True:
@@ -634,4 +705,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
