@@ -2,7 +2,7 @@
 This program is used to encode and decode various kinds of cipher.
 This program runs in terminal. The python3 interpreter is needed.
 
-Version: 16:18 4/16/2020 from Pycharm
+Version: 21:24 4/23/2020 from Pycharm
 """
 
 import os
@@ -138,6 +138,55 @@ class UniversalInput:
                 continue
         text = self.check_mode3(mode3)
         input_list = [seed, text]
+        return input_list
+
+    def vernam_cipher_input(self, mode3, input_type):
+        i = None
+        text = None
+        input_list = []
+        if input_type == "plain text":
+            while True:
+                text = self.check_mode3(mode3)
+                if text.islower():
+                    break
+                else:
+                    print("The input plain text must be lower case letters with no space.\n")
+                    mode3 = "1"
+                    continue
+        elif input_type == "cipher text":
+            check = False
+            while True:
+                text = self.check_mode3(mode3)
+                for i in text:
+                    if self.check_mode_input(i, ["0", "1"]):
+                        check = True
+                        continue
+                    else:
+                        check = False
+                        break
+                if check:
+                    break
+                else:
+                    print("The cipher text must be binary.\n")
+                    mode3 = "1"
+                    continue
+
+        while True:
+            key_stream = input("Please input key stream, it must be exact 5 times the length of the plaintext.\n")
+            if input_type == "plain text":
+                if len(key_stream) != 5 * len(text):
+                    print("The key stream is not valid.\n")
+                    continue
+            for i in range(len(key_stream)):
+                if self.check_mode_input(key_stream[i], ["0", "1"]):
+                    continue
+                else:
+                    break
+            if i != len(key_stream) - 1:
+                continue
+            else:
+                input_list = [key_stream, text]
+                break
         return input_list
 
 
@@ -600,6 +649,64 @@ class AutokeyCipher:
         return self.plaintext
 
 
+class VernamCipher:
+    """
+    This class is used to encode and decode Vernam cipher. This cipher can only encode lower
+    case letter without space. Upper case letters, numbers, space, and symbol won't be accepted
+    as input plaintext. The key stream must be binary number which has exact 5 times length of
+    the input plaintext. The input cipher text must be binary.
+    """
+    def __init__(self, key_stream, ciphertext, plaintext):
+        self.key_stream = key_stream
+        self.ciphertext_input = ciphertext
+        self.plaintext_input = plaintext
+        self.plaintext = []
+        self.ciphertext = []
+
+    def encode(self):
+        input_combine = ""
+        for i in self.plaintext_input:
+            i1 = ord(i) - 97
+            i2 = bin(i1)[2:]
+            i3 = ""
+            if len(i2) < 5:
+                for j in range(5 - len(i2)):
+                    i3 += "0"
+                i3 += i2
+                input_combine += i3
+            else:
+                input_combine += i2
+        for x in range(len(input_combine)):
+            if input_combine[x] == self.key_stream[x]:
+                self.ciphertext.append("0")
+            else:
+                self.ciphertext.append("1")
+        for k in self.ciphertext:
+            print(k, end="")
+        print("\n")
+        return self.ciphertext
+
+    def decode(self):
+        after_xor = ""
+        for x in range(len(self.ciphertext_input)):
+            if self.key_stream[x] == self.ciphertext_input[x]:
+                after_xor += "0"
+            else:
+                after_xor += "1"
+        for i in range(0, len(after_xor), 5):
+            result1 = after_xor[i:i+5]
+            num1 = 0
+            for j in range(len(result1)):
+                num1 += int(result1[j]) * (2 ** (4-j))
+            result2 = chr(num1 + 97)
+            self.plaintext.append(result2)
+
+        for k in self.plaintext:
+            print(k, end="")
+        print("\n")
+        return self.plaintext
+
+
 def mode():
     """
     This function is used to process different modes. Mode1 represent which
@@ -613,8 +720,9 @@ def mode():
             2. LinearCodes\n\
             3. Vigenere Cipher\n\
             4. Hill Cipher\n\
-            5. Autokey Cipher\n")
-        if UniversalInput().check_mode_input(mode1, ["1", "2", "3", "4", "5"]):
+            5. Autokey Cipher\n\
+            6. Vernam Cipher\n")
+        if UniversalInput().check_mode_input(mode1, ["1", "2", "3", "4", "5", "6"]):
             break
         else:
             continue
@@ -695,6 +803,18 @@ def mode():
             input_list = UniversalInput("cipher text").autokey_cipher_input(mode3)
             ac = AutokeyCipher(input_list[0], input_list[1], 0)
             ReadAndWrite().file_write(''.join(ac.decode()))
+            return
+
+    elif mode1 == "6":
+        if mode2 == "1":
+            input_list = UniversalInput("plain text").vernam_cipher_input(mode3, "plain text")
+            vmc = VernamCipher(input_list[0], 0, input_list[1])
+            ReadAndWrite().file_write(''.join(vmc.encode()))
+            return
+        elif mode2 == "2":
+            input_list = UniversalInput("cipher text").vernam_cipher_input(mode3, "cipher text")
+            vmc = VernamCipher(input_list[0], input_list[1], 0)
+            ReadAndWrite().file_write(''.join(vmc.decode()))
             return
 
 
