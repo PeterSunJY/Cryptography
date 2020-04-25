@@ -2,7 +2,7 @@
 This program is used to encode and decode various kinds of cipher.
 This program runs in terminal. The python3 interpreter is needed.
 
-Version: 21:24 4/23/2020 from Pycharm
+Version: 14:21 4/25/2020 from Pycharm
 """
 
 import os
@@ -43,6 +43,19 @@ class UniversalInput:
         self.text_type = text_type
 
     @staticmethod
+    def relatively_prime(a, b):
+        check = True
+        if a > b:
+            for i in range(2, b + 1):
+                if b % i == 0 and a % i == 0:
+                    check = False
+        else:
+            for i in range(2, a + 1):
+                if a % i == 0 and b % i == 0:
+                    check = False
+        return check
+
+    @staticmethod
     def check_mode_input(actual_input, valid_input):
         """
         This function is used to check if user input invalid data.
@@ -77,7 +90,11 @@ class UniversalInput:
         while True:
             try:
                 a = int(input("Please input the value of a: \n"))
-                break
+                if self.relatively_prime(a, 26):
+                    break
+                else:
+                    print("The value of a is not valid, a must be relatively prime with 26.\n")
+                    continue
             except ValueError:
                 print("Invalid input, a must be an integer.")
         while True:
