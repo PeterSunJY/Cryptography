@@ -2,7 +2,7 @@
 This program is used to encode and decode various kinds of cipher.
 This program runs in terminal. The python3 interpreter is needed.
 
-Version: 14:21 4/25/2020 from Pycharm
+Version: 20:20 4/25/2020 from Pycharm
 """
 
 import os
@@ -30,7 +30,30 @@ class ReadAndWrite:
         fp = open("output_text.txt", "w")
         fp.write(write_list)
         fp.close()
-        return ()
+        return
+
+    def rsa_file_read(self, mode2):
+        if mode2 == "1":
+            return self.file_read()
+        elif mode2 == "2":
+            fp = open("input_text.txt", "r")
+            read_list1 = fp.readlines()
+            read_list2 = []
+            for line in read_list1:
+                line = line.strip()
+                read_list2.append(line)
+            fp.close()
+            return read_list2
+
+    def rsa_file_write(self, mode2, write_list):
+        if mode2 == "1":
+            fp = open("output_text.txt", "w")
+            for i in write_list:
+                fp.write(i)
+                fp.write("\n")
+            fp.close()
+        elif mode2 == "2":
+            self.file_write(write_list)
 
 
 class UniversalInput:
@@ -41,6 +64,14 @@ class UniversalInput:
 
     def __init__(self, text_type=None):
         self.text_type = text_type
+
+    @staticmethod
+    def prime(x):
+        check = True
+        for i in range(2, x):
+            if x % i == 0:
+                check = False
+        return check
 
     @staticmethod
     def relatively_prime(a, b):
@@ -69,10 +100,17 @@ class UniversalInput:
     def check_mode3(self, mode3):
         text = None
         if mode3 == "1":
-            # print(self.text_type)
             text = input("Please input the " + self.text_type + " :\n")
         elif mode3 == "2":
             text = ReadAndWrite().file_read()
+        return text
+
+    def rsa_check_mode3(self, mode2, mode3):
+        text = None
+        if mode3 == "1":
+            text = input("Please input the " + self.text_type + " :\n")
+        elif mode3 == "2":
+            text = ReadAndWrite().rsa_file_read(mode2)
         return text
 
     def generalized_caesar_codes_input(self, mode3):
@@ -204,6 +242,44 @@ class UniversalInput:
             else:
                 input_list = [key_stream, text]
                 break
+        return input_list
+
+    def rsa_input(self, mode2, mode3):
+        pq = []
+        input_pq = ["p", "q"]
+        for i in range(len(input_pq)):
+            while True:
+                try:
+                    pq.append(int(input("Please input the value of " + input_pq[i] + ".\n")))
+                    if self.prime(pq[i]):
+                        break
+                    else:
+                        del pq[-1]
+                        print("Invalid input, p must be a prime number.")
+                except ValueError:
+                    print("Invalid input. The value of p and q must be integers.")
+        m = pq[0] * pq[1]
+        n = (pq[0]-1) * (pq[1] - 1)
+        print("The value of m is " + str(m))
+        print("The value of n is " + str(n))
+        e = None
+        while True:
+            try:
+                e = int(input("Please input the value of e. The value of e must be relatively prime with n.\n"))
+                if self.relatively_prime(e, n):
+                    if 0 <= e < n:
+                        break
+                    else:
+                        print("Invalid input. The value of e must satisfy 0 <= e < n.\n")
+                        continue
+                else:
+                    print("Invalid input. The value of e and n must be relatively prime.")
+                    continue
+            except ValueError:
+                print("Invalid input, the value of e must be an integer.\n")
+                continue
+        text = self.rsa_check_mode3(mode2, mode3)
+        input_list = [m, n, e, text]
         return input_list
 
 
@@ -724,6 +800,48 @@ class VernamCipher:
         return self.plaintext
 
 
+class RSA:
+    def __init__(self, m, n, e, ciphertext, plaintext):
+        self.m = m
+        self.n = n
+        self.e = e
+        self.ciphertext_input = ciphertext
+        self.plaintext_input = plaintext
+        self.ciphertext = []
+        self.plaintext = []
+
+    def encode(self):
+        for i in self.plaintext_input:
+            i1 = ord(i)
+            i1 = (i1 ** self.e) % self.m
+            self.ciphertext.append(str(i1))
+        for k in self.ciphertext:
+            print(k, end="")
+        print("\n")
+        return self.ciphertext
+
+    def decode(self):
+        d = None
+        num1 = 1
+        while True:
+            if (num1 * self.e) % self.n == 1:
+                d = num1
+                break
+            else:
+                num1 += 1
+                continue
+        for i in self.ciphertext_input:
+            i1 = int(i)
+            i1 = (i1 ** d) % self.m
+            i1 = chr(i1)
+            self.plaintext.append(str(i1))
+
+        for k in self.plaintext:
+            print(k, end="")
+        print("\n")
+        return self.plaintext
+
+
 def mode():
     """
     This function is used to process different modes. Mode1 represent which
@@ -738,8 +856,9 @@ def mode():
             3. Vigenere Cipher\n\
             4. Hill Cipher\n\
             5. Autokey Cipher\n\
-            6. Vernam Cipher\n")
-        if UniversalInput().check_mode_input(mode1, ["1", "2", "3", "4", "5", "6"]):
+            6. Vernam Cipher\n\
+            7. RSA Cryptosystem\n")
+        if UniversalInput().check_mode_input(mode1, ["1", "2", "3", "4", "5", "6", "7"]):
             break
         else:
             continue
@@ -832,6 +951,18 @@ def mode():
             input_list = UniversalInput("cipher text").vernam_cipher_input(mode3, "cipher text")
             vmc = VernamCipher(input_list[0], input_list[1], 0)
             ReadAndWrite().file_write(''.join(vmc.decode()))
+            return
+
+    elif mode1 == "7":
+        if mode2 == "1":
+            input_list = UniversalInput("plain text").rsa_input(mode2, mode3)
+            rsa = RSA(input_list[0], input_list[1], input_list[2], 0, input_list[3])
+            ReadAndWrite().rsa_file_write(mode2, rsa.encode())
+            return
+        elif mode2 == "2":
+            input_list = UniversalInput("cipher text").rsa_input(mode2, mode3)
+            rsa = RSA(input_list[0], input_list[1], input_list[2], input_list[3], 0)
+            ReadAndWrite().rsa_file_write(mode2, ''.join(rsa.decode()))
             return
 
 
