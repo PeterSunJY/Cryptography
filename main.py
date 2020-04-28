@@ -2,7 +2,7 @@
 This program is used to encode and decode various kinds of cipher.
 This program runs in terminal. The python3 interpreter is needed.
 
-Version: 20:20 4/25/2020 from Pycharm
+Version: 13:40 4/28/2020 from Pycharm
 """
 
 import os
@@ -801,6 +801,11 @@ class VernamCipher:
 
 
 class RSA:
+    """
+    This class is used to encode and decode the RSA Cryptosystem. This cipher can encode
+    all 128 elements in ASCII table. The value of p, q and e must be manually chosen. The
+    decode of this cipher only support reading from input_text.txt file.
+    """
     def __init__(self, m, n, e, ciphertext, plaintext):
         self.m = m
         self.n = n
@@ -873,7 +878,9 @@ def mode():
     while True:
         mode3 = input("Please input number to choose input method.\n\
             1. Manual input\n\
-            2. Read file \"input_text.txt\" at local path\n")
+            2. Read file \"input_text.txt\" at local path\n\
+The RSA Cryptosystem decode doesn't support manual input.\n")
+        print()
         if UniversalInput().check_mode_input(mode3, ["1", "2"]):
             break
         else:
@@ -960,7 +967,7 @@ def mode():
             ReadAndWrite().rsa_file_write(mode2, rsa.encode())
             return
         elif mode2 == "2":
-            input_list = UniversalInput("cipher text").rsa_input(mode2, mode3)
+            input_list = UniversalInput("cipher text").rsa_input(mode2, "2")
             rsa = RSA(input_list[0], input_list[1], input_list[2], input_list[3], 0)
             ReadAndWrite().rsa_file_write(mode2, ''.join(rsa.decode()))
             return
