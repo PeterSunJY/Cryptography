@@ -23,4 +23,4 @@ The main.py file contains all the python codes. The input_text.txt is a file tha
 ## Notices
 - For the first five ciphers, only the letters will be encrypted. The element other than letters, such as numbers, symbols will be accepted but won't be encrypted. These elements will be directly put into the ciphertext.
 - For the Vernam Cipher, only lower case letters will be accepted and encrypted.
-- For the RSA, all letters numbers and symbols which in the 128 elements of the ASCII table will be accepted and encrypted. For the decryption part, users must use file input rather than manual input. If the input of encryption or decryption contains elements that are not included in the ASCII table, it has potential risks to course an error.
+- For the RSA, all letters numbers and symbols which in the 128 elements of the ASCII table will be accepted and encrypted. For the decryption part, users must use file input rather than manual input. If the input of encryption or decryption contains elements that are not included in the ASCII table, it has potential risks to cause an error.
